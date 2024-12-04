@@ -9,36 +9,38 @@ class Entity
 public:
     Entity(EntityId id, World &world);
 
-    inline EntityId get_id() const { return id; }
+    inline EntityId id() const { return _id; }
 
-    inline void destroy() { world.destroy_entity(id); }
+    inline World &world() { return _world; }
+
+    inline void destroy() { _world.destroy_entity(_id); }
 
     template <typename T>
     inline Entity add(const T &component)
     {
-        world.add_component(id, component);
+        _world.add_component(_id, component);
         return *this;
     }
 
     template <typename T>
     inline T *get()
     {
-        return world.get_component<T>(id);
+        return _world.get_component<T>(_id);
     }
 
     template <typename T>
     inline bool has()
     {
-        return world.get_component<T>(id) != nullptr;
+        return _world.get_component<T>(_id) != nullptr;
     }
 
     template <typename T>
     inline void remove()
     {
-        world.remove_component<T>(id);
+        _world.remove_component<T>(_id);
     }
 
 private:
-    EntityId id;
-    World &world;
+    EntityId _id;
+    World &_world;
 };

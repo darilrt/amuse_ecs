@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <vector>
 #include <unordered_map>
 #include <typeindex>
@@ -13,35 +15,17 @@ struct ArchetypeId
 {
     std::vector<ComponentId> ids;
 
-    ArchetypeId copy() const
-    {
-        ArchetypeId copy;
-        copy.ids = ids;
-        return copy;
-    }
+    ArchetypeId copy() const;
 
-    void add(ComponentId id)
-    {
-        ids.push_back(id);
-        std::sort(ids.begin(), ids.end());
-    }
+    void add(ComponentId id);
 
-    bool contains(ComponentId id) const
-    {
-        return std::find(ids.begin(), ids.end(), id) != ids.end();
-    }
+    bool contains(ComponentId id) const;
 
-    bool contains(const ArchetypeId &other) const
-    {
-        for (auto id : other.ids)
-        {
-            if (!contains(id))
-            {
-                return false;
-            }
-        }
+    bool contains(const ArchetypeId &other) const;
 
-        return true;
+    inline ComponentId at(size_t index) const
+    {
+        return ids.at(index);
     }
 
     bool operator==(const ArchetypeId &other) const
@@ -78,5 +62,42 @@ public:
 
     void remove_entity(EntityId entity_id);
 
-private:
+    template <typename T>
+    void set_component(EntityId entity_id, const T &component)
+    {
+        auto it = component_index.find(std::type_index(typeid(T)));
+
+        assert(it != component_index.end() && "Component does not exist in archetype");
+
+        auto &component_vector = component_data[it->second];
+
+        auto index = std::find(entities.begin(), entities.end(), entity_id) - entities.begin();
+
+        component_vector[index] = new T(component);
+    }
+
+    template <typename T>
+    T *get_component(EntityId entity_id)
+    {
+        auto it = component_index.find(std::type_index(typeid(T)));
+        assert(it != component_index.end() && "Component does not exist in archetype");
+
+        auto index = it->second;
+
+        auto entity_it = std::find(entities.begin(), entities.end(), entity_id);
+        assert(entity_it != entities.end() && "Entity does not exist in archetype");
+
+        auto entity_index = entity_it - entities.begin();
+
+        return static_cast<T *>(component_data[index][entity_index]);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Archetype &archetype)
+    {
+        os << "Archetype(id=[";
+        for (auto id : archetype.id.ids)
+            os << id << ", ";
+        os << "], entities=" << archetype.entities.size() << ")";
+        return os;
+    }
 };

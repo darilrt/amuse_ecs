@@ -3,27 +3,51 @@
 #include "amuse_ecs/archetype.hpp"
 #include "amuse_ecs/world.hpp"
 
+ArchetypeId ArchetypeId::copy() const
+{
+    ArchetypeId copy;
+    copy.ids = ids;
+    return copy;
+}
+
+void ArchetypeId::add(ComponentId id)
+{
+    if (std::find(ids.begin(), ids.end(), id) == ids.end())
+    {
+        ids.push_back(id);
+        std::sort(ids.begin(), ids.end());
+    }
+}
+
+bool ArchetypeId::contains(ComponentId id) const
+{
+    return std::find(ids.begin(), ids.end(), id) != ids.end();
+}
+
+bool ArchetypeId::contains(const ArchetypeId &other) const
+{
+    for (auto id : other.ids)
+    {
+        if (!contains(id))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void Archetype::add_entity(EntityId entity_id)
 {
     auto it = std::find(entities.begin(), entities.end(), entity_id);
 
-    if (it == entities.end())
+    assert(it == entities.end() && "Entity already exists in archetype");
+
+    entities.push_back(entity_id);
+
+    for (size_t i = 0; i < component_data.size(); i++)
     {
-        entities.push_back(entity_id);
-
-        for (size_t i = 0; i < component_data.size(); i++)
-        {
-            component_data[i].push_back(nullptr);
-        }
-
-        return;
-    }
-
-    auto index = it - entities.begin();
-
-    for (auto &component : component_data)
-    {
-        component[index] = nullptr;
+        component_data[i].push_back(nullptr);
     }
 }
 
@@ -39,7 +63,7 @@ void Archetype::remove_entity(EntityId entity_id)
     // Delete the components for this entity
     for (auto &component : component_data)
     {
-        // world.delete_component(id[index], component[index]);
+        world.delete_component(id.at(index), component[index]);
         component[index] = nullptr;
     }
 

@@ -8,7 +8,7 @@ World::World()
     component_count = 0;
 
     // Create an archetype with no components
-    archetypes.push_back(Archetype(*this));
+    archetypes.push_back(std::make_unique<Archetype>(*this));
 }
 
 Entity World::create_entity(const std::string &name)
@@ -16,7 +16,7 @@ Entity World::create_entity(const std::string &name)
     EntityId id;
 
     // Get the archetype with no components
-    Archetype &archetype = archetypes[0];
+    Archetype &archetype = *archetypes[0];
 
     if (free_entities.empty())
     {
