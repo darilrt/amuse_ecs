@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-
+#include <cassert>
 #include <vector>
 #include <unordered_map>
 #include <typeindex>
