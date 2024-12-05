@@ -19,6 +19,8 @@ struct ArchetypeId
 
     void add(ComponentId id);
 
+    void remove(ComponentId id);
+
     bool contains(ComponentId id) const;
 
     bool contains(const ArchetypeId &other) const;
@@ -60,7 +62,11 @@ public:
 
     void add_entity(EntityId entity_id);
 
-    void remove_entity(EntityId entity_id);
+    // Remove the entity from the archetype deleting the components
+    void delete_entity(EntityId entity_id);
+
+    // Extract the entity from the archetype without deleting the components
+    void extract_entity(EntityId entity_id);
 
     template <typename T>
     void set_component(EntityId entity_id, const T &component)

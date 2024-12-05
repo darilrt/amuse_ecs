@@ -1,6 +1,7 @@
 #include "amuse_ecs/world.hpp"
 #include "amuse_ecs/entity.hpp"
 #include "amuse_ecs/archetype.hpp"
+#include "amuse_ecs/view.hpp"
 
 World::World()
 {
@@ -41,7 +42,7 @@ void World::destroy_entity(EntityId id)
 {
     assert(find_entity(id) != INVALID_ENTITY && "Entity does not exist");
 
-    entity_info[id].archetype->remove_entity(id);
+    entity_info[id].archetype->delete_entity(id);
 
     free_entities.push_back(id);
 }

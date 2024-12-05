@@ -19,6 +19,18 @@ void ArchetypeId::add(ComponentId id)
     }
 }
 
+void ArchetypeId::remove(ComponentId id)
+{
+    auto it = std::find(ids.begin(), ids.end(), id);
+
+    if (it != ids.end())
+    {
+        ids.erase(it);
+    }
+
+    std::sort(ids.begin(), ids.end());
+}
+
 bool ArchetypeId::contains(ComponentId id) const
 {
     return std::find(ids.begin(), ids.end(), id) != ids.end();
@@ -51,7 +63,7 @@ void Archetype::add_entity(EntityId entity_id)
     }
 }
 
-void Archetype::remove_entity(EntityId entity_id)
+void Archetype::delete_entity(EntityId entity_id)
 {
     // Find the entity in the archetype
     auto it = std::find(entities.begin(), entities.end(), entity_id);
@@ -66,6 +78,38 @@ void Archetype::remove_entity(EntityId entity_id)
         world.delete_component(id.at(index), component[index]);
         component[index] = nullptr;
     }
+
+    // If the entity is not the last one, swap it with the last one
+    if (index != entities.size() - 1)
+    {
+        for (size_t i = 0; i < component_data.size(); i++)
+        {
+            component_data[i][index] = component_data[i].back();
+            component_data[i].pop_back();
+        }
+
+        entities[index] = entities.back();
+        entities.pop_back();
+    }
+    else
+    {
+        for (auto &component : component_data)
+        {
+            component.pop_back();
+        }
+
+        entities.pop_back();
+    }
+}
+
+void Archetype::extract_entity(EntityId entity_id)
+{
+    // Find the entity in the archetype
+    auto it = std::find(entities.begin(), entities.end(), entity_id);
+
+    assert(it != entities.end() && "Entity does not exist in archetype");
+
+    auto index = it - entities.begin();
 
     // If the entity is not the last one, swap it with the last one
     if (index != entities.size() - 1)
