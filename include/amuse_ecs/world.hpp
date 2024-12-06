@@ -190,7 +190,7 @@ public:
     template <typename... Components>
     View<Components...> view()
     {
-        View<Components...> view;
+        View<Components...> view(*this);
 
         for (auto &archetype : archetypes)
         {

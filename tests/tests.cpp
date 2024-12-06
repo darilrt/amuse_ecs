@@ -181,9 +181,11 @@ TEST(ViewEach, "Use of each view function")
     ASSERT(view.archetypes.size() == 1);
     ASSERT(view.archetypes[0]->entities.size() == 1);
 
-    view.each([&_result](EntityId entity_id, Position *position, Velocity *velocity)
+    view.each([&_result](Entity entity, Position *position, Velocity *velocity)
               {
-                  if (entity_id == 0)
+                  auto p = entity.get<Position>();
+                  std::cout << p->x << " " << p->y << std::endl;
+                  if (entity.id() == 0)
                   {
                       ASSERT(position->x == 1.0f);
                       ASSERT(position->y == 2.0f);

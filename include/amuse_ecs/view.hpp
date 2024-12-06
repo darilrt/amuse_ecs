@@ -6,12 +6,20 @@
 
 #include "amuse_ecs/archetype.hpp"
 
+class Entity;
+class World;
+
+Entity ecs_get_entity(EntityId id, World &world);
+
 template <typename... Components>
 class View
 {
 public:
+    World &world;
     size_t index = -1;
     std::vector<Archetype *> archetypes;
+
+    View(World &world) : world(world) {}
 
     bool next()
     {
@@ -30,7 +38,8 @@ public:
         return *archetypes[index];
     }
 
-    void each(std::function<void(EntityId, Components *...)> func)
+    void
+    each(std::function<void(Entity, Components *...)> func)
     {
         while (next())
         {
@@ -39,11 +48,11 @@ public:
 
             for (size_t i = 0; i < archetype->entities.size(); i++)
             {
-                std::tuple<Components *...> components =
-                    std::make_tuple(
-                        (Components *)component_data[archetype->component_index[std::type_index(typeid(Components))]].data() + i...);
+                Entity entity = ecs_get_entity(archetype->entities[i], world);
+                // std::tuple<Components *...> components =
+                //     std::make_tuple(entity.get<Components>()...);
 
-                func(archetype->entities[i], std::get<Components *>(components)...);
+                func(entity, std::get<Components *>(components)...);
             }
         }
     }
