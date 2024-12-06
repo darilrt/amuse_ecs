@@ -179,6 +179,7 @@ TEST(ViewEach, "Use of each view function")
     auto view = world.view<Position, Velocity>();
 
     ASSERT(view.archetypes.size() == 1);
+    ASSERT(view.archetypes[0]->entities.size() == 1);
 
     view.each([&_result](EntityId entity_id, Position *position, Velocity *velocity)
               {

@@ -15,12 +15,13 @@ public:
 
     bool next()
     {
+        index++;
+
         if (index >= archetypes.size())
         {
             return false;
         }
 
-        index++;
         return true;
     }
 
