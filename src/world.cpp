@@ -47,6 +47,13 @@ void World::destroy_entity(EntityId id)
     free_entities.push_back(id);
 }
 
+Entity World::get_entity(EntityId id)
+{
+    assert(find_entity(id) != INVALID_ENTITY && "Entity does not exist");
+
+    return Entity(id, *this);
+}
+
 // Find an entity by id
 // Returns INVALID_ENTITY if the entity does not exist (That is, the entity id is greater than the entity count or the entity id is in the free entities list)
 EntityId World::find_entity(EntityId id)

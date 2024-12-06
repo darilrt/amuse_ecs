@@ -12,7 +12,6 @@
 
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype.hpp"
-#include "amuse_ecs/view.hpp"
 
 class Entity;
 
@@ -26,11 +25,22 @@ struct EntityInfo
 class World
 {
 public:
+    std::vector<std::unique_ptr<Archetype>> archetypes;
+
+    EntityId entity_count;
+    std::vector<EntityId> free_entities;
+    std::vector<EntityInfo> entity_info;
+    ComponentId component_count;
+    std::unordered_map<std::type_index, ComponentId> component_map;
+    std::unordered_map<ComponentId, void (*)(void *)> delete_component_map;
+
     World();
 
     Entity create_entity(const std::string &name = "");
 
     void destroy_entity(EntityId id);
+
+    Entity get_entity(EntityId id);
 
     EntityId find_entity(EntityId id);
 
@@ -187,36 +197,10 @@ public:
         return get_archetype_by_id(generate_archetype_id<Components...>());
     }
 
-    template <typename... Components>
-    View<Components...> view()
-    {
-        View<Components...> view(*this);
-
-        for (auto &archetype : archetypes)
-        {
-            if (archetype->id.contains(generate_archetype_id<Components...>()))
-            {
-                view.archetypes.push_back(archetype.get());
-            }
-        }
-
-        return view;
-    }
-
     inline EntityInfo &get_entity_info(EntityId id)
     {
         return entity_info[id];
     }
-
-private:
-    std::vector<std::unique_ptr<Archetype>> archetypes;
-
-    EntityId entity_count;
-    std::vector<EntityId> free_entities;
-    std::vector<EntityInfo> entity_info;
-    ComponentId component_count;
-    std::unordered_map<std::type_index, ComponentId> component_map;
-    std::unordered_map<ComponentId, void (*)(void *)> delete_component_map;
 
     template <typename... Components>
     ArchetypeId generate_archetype_id()

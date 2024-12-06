@@ -5,11 +5,8 @@
 #include <algorithm>
 
 #include "amuse_ecs/archetype.hpp"
-
-class Entity;
-class World;
-
-Entity ecs_get_entity(EntityId id, World &world);
+#include "amuse_ecs/entity.hpp"
+#include "amuse_ecs/world.hpp"
 
 template <typename... Components>
 class View
@@ -19,7 +16,16 @@ public:
     size_t index = -1;
     std::vector<Archetype *> archetypes;
 
-    View(World &world) : world(world) {}
+    View(World &world) : world(world)
+    {
+        for (auto &archetype : world.archetypes)
+        {
+            if (archetype->id.contains(world.generate_archetype_id<Components...>()))
+            {
+                archetypes.push_back(archetype.get());
+            }
+        }
+    }
 
     bool next()
     {
@@ -38,19 +44,17 @@ public:
         return *archetypes[index];
     }
 
-    void
-    each(std::function<void(Entity, Components *...)> func)
+    void each(std::function<void(Entity, Components *...)> func)
     {
         while (next())
         {
             auto &archetype = archetypes[index];
-            auto &component_data = archetype->component_data;
 
             for (size_t i = 0; i < archetype->entities.size(); i++)
             {
-                Entity entity = ecs_get_entity(archetype->entities[i], world);
-                // std::tuple<Components *...> components =
-                //     std::make_tuple(entity.get<Components>()...);
+                Entity entity = world.get_entity(archetype->entities[i]);
+                std::tuple<Components *...> components =
+                    std::make_tuple(entity.get<Components>()...);
 
                 func(entity, std::get<Components *>(components)...);
             }

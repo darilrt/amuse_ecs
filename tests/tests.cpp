@@ -1,9 +1,9 @@
 #include <amuse_utest/utest.hpp>
 
-#define ECS_IMPLEMENTATION
 #include "amuse_ecs/world.hpp"
 #include "amuse_ecs/entity.hpp"
 #include "amuse_ecs/archetype.hpp"
+#include "amuse_ecs/view.hpp"
 
 struct Position
 {
@@ -134,7 +134,7 @@ TEST(ViewIteration, "View iteration")
     Entity entity1 = world.create_entity();
     entity1.add<Position>({5.0f, 6.0f});
 
-    auto view = world.view<Position>();
+    View<Position> view(world);
 
     ASSERT(view.archetypes.size() == 2);
 
@@ -176,7 +176,7 @@ TEST(ViewEach, "Use of each view function")
     Entity entity1 = world.create_entity();
     entity1.add<Position>({5.0f, 6.0f});
 
-    auto view = world.view<Position, Velocity>();
+    View<Position, Velocity> view(world);
 
     ASSERT(view.archetypes.size() == 1);
     ASSERT(view.archetypes[0]->entities.size() == 1);
