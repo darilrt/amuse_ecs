@@ -1,135 +1,151 @@
 #include <cassert>
 
 #include "amuse_ecs/archetype.hpp"
+#include "amuse_ecs/archetype_id.hpp"
 #include "amuse_ecs/world.hpp"
 
-ArchetypeId ArchetypeId::copy() const
+Archetype::Archetype(World &world, const ArchetypeId &id)
+    : id(id), world(world)
 {
-    ArchetypeId copy;
-    copy.ids = ids;
-    return copy;
-}
-
-void ArchetypeId::add(ComponentId id)
-{
-    if (std::find(ids.begin(), ids.end(), id) == ids.end())
+    // Check if archetype already exists
+    for (size_t i = 0; i < world.archetypes.size(); i++)
     {
-        ids.push_back(id);
-        std::sort(ids.begin(), ids.end());
-    }
-}
-
-void ArchetypeId::remove(ComponentId id)
-{
-    auto it = std::find(ids.begin(), ids.end(), id);
-
-    if (it != ids.end())
-    {
-        ids.erase(it);
+        assert(world.archetypes[i]->id != id && "Archetype already exists");
     }
 
-    std::sort(ids.begin(), ids.end());
-}
-
-bool ArchetypeId::contains(ComponentId id) const
-{
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
-bool ArchetypeId::contains(const ArchetypeId &other) const
-{
-    for (auto id : other.ids)
+    // Initialize component data
+    for (auto comp_id : id.ids)
     {
-        if (!contains(id))
-        {
-            return false;
-        }
+        components[comp_id] = std::vector<void *>();
     }
-
-    return true;
 }
 
 void Archetype::add_entity(EntityId entity_id)
 {
-    auto it = std::find(entities.begin(), entities.end(), entity_id);
-
-    assert(it == entities.end() && "Entity already exists in archetype");
-
     entities.push_back(entity_id);
 
-    for (size_t i = 0; i < component_data.size(); i++)
+    for (auto &[comp_id, comp_data] : components)
     {
-        component_data[i].push_back(nullptr);
+        comp_data.resize(entities.size());
+        comp_data.back() = nullptr;
     }
 }
 
-void Archetype::delete_entity(EntityId entity_id)
+void Archetype::remve_entity(EntityId entity_id)
 {
-    // Find the entity in the archetype
-    auto it = std::find(entities.begin(), entities.end(), entity_id);
+    auto entity_index = get_entity_index(entity_id);
 
-    assert(it != entities.end() && "Entity does not exist in archetype");
+    assert(entity_index != -1 && "Entity does not exist in archetype");
 
-    auto index = it - entities.begin();
+    // Swap entity with last entity
+    entities[entity_index] = entities.back();
 
-    // Delete the components for this entity
-    for (auto &component : component_data)
+    // Remove last entity
+    entities.pop_back();
+
+    for (auto &[comp_id, comp_data] : components)
     {
-        world.delete_component(id.at(index), component[index]);
-        component[index] = nullptr;
-    }
+        // Swap component with last component
+        comp_data[entity_index] = comp_data.back();
 
-    // If the entity is not the last one, swap it with the last one
-    if (index != entities.size() - 1)
-    {
-        for (size_t i = 0; i < component_data.size(); i++)
-        {
-            component_data[i][index] = component_data[i].back();
-            component_data[i].pop_back();
-        }
-
-        entities[index] = entities.back();
-        entities.pop_back();
-    }
-    else
-    {
-        for (auto &component : component_data)
-        {
-            component.pop_back();
-        }
-
-        entities.pop_back();
+        // Remove last component
+        comp_data.pop_back();
     }
 }
 
-void Archetype::extract_entity(EntityId entity_id)
+size_t Archetype::get_entity_index(EntityId entity_id)
 {
-    // Find the entity in the archetype
-    auto it = std::find(entities.begin(), entities.end(), entity_id);
-
-    assert(it != entities.end() && "Entity does not exist in archetype");
-
-    auto index = it - entities.begin();
-
-    // If the entity is not the last one, swap it with the last one
-    if (index != entities.size() - 1)
+    for (size_t i = 0; i < entities.size(); i++)
     {
-        for (size_t i = 0; i < component_data.size(); i++)
+        if (entities[i] == entity_id)
         {
-            component_data[i][index] = component_data[i].back();
-            component_data[i].pop_back();
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void Archetype::set_component(EntityId entity_id, ComponentId comp_id, void *component)
+{
+    assert(id.contains(comp_id) && "Archetype does not contain component");
+
+    auto entity_index = get_entity_index(entity_id);
+
+    assert(entity_index != -1 && "Entity does not exist in archetype");
+
+    components[comp_id][entity_index] = component;
+}
+
+void *Archetype::get_component(EntityId entity_id, ComponentId comp_id)
+{
+    assert(id.contains(comp_id) && "Archetype does not contain component");
+
+    auto entity_index = get_entity_index(entity_id);
+
+    assert(entity_index != -1 && "Entity does not exist in archetype");
+
+    return components[comp_id][entity_index];
+}
+
+void Archetype::move_entity(Archetype &new_archetype, EntityId entity_id)
+{
+    // Find entity index
+    auto entity_index = get_entity_index(entity_id);
+
+    assert(entity_index != -1 && "Entity does not exist in archetype");
+
+    // Add entity to new archetype
+    new_archetype.add_entity(entity_id);
+
+    // Move components to new archetype
+    for (auto &[comp_id, comp_data] : components)
+    {
+        // if component exists in new archetype move else delete
+        if (new_archetype.id.contains(comp_id))
+        {
+            new_archetype.set_component(entity_id, comp_id, comp_data[entity_index]);
+        }
+        else
+        {
+            world.delete_component(comp_id, comp_data[entity_index]);
+        }
+    }
+
+    // Remove entity from current archetype
+    remve_entity(entity_id);
+}
+
+std::ostream &operator<<(std::ostream &os, const Archetype &archetype)
+{
+    os << "Archetype(" << archetype.id << ")" << std::endl;
+
+    // print a table like:
+    // Entity | CompA | CompB | CompC
+    // 0      | 0x123 | 0x456 | 0x789
+    // 1      | 0x123 | 0x456 | 0x789
+    // 2      | 0x123 | 0x456 | 0x789
+    // ...
+    os << "Entity | ";
+
+    for (auto &[comp_id, comp_data] : archetype.components)
+    {
+        os << comp_id.name() << " | ";
+    }
+
+    os << std::endl;
+
+    for (size_t i = 0; i < archetype.entities.size(); i++)
+    {
+        os << i << " | ";
+
+        for (auto &[comp_id, comp_data] : archetype.components)
+        {
+            os << comp_data[i] << " | ";
         }
 
-        entities[index] = entities.back();
-        entities.pop_back();
+        os << std::endl;
     }
-    else
-    {
-        for (auto &component : component_data)
-        {
-            component.pop_back();
-        }
 
-        entities.pop_back();
-    }
+    return os;
 }

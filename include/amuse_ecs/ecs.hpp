@@ -1,10 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <typeindex>
 
 typedef uint64_t EcsId;
 typedef EcsId EntityId;
-typedef EcsId ComponentId;
+typedef std::type_index ComponentId;
+
+#define ECS_ID(name) std::type_index(typeid(name))
 
 enum : EcsId
 {
@@ -14,9 +17,4 @@ enum : EcsId
 enum : EntityId
 {
     INVALID_ENTITY = INVALID_ID
-};
-
-enum : ComponentId
-{
-    INVALID_COMPONENT = INVALID_ID
 };
