@@ -4,11 +4,13 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <functional>
 
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype_id.hpp"
 
 class World;
+class Entity;
 
 class Archetype
 {
@@ -42,5 +44,8 @@ public:
 
     void move_entity(Archetype &new_archetype, EntityId entity_id);
 
+    Entity find(EntityId entity_id);
+
+private:
     friend std::ostream &operator<<(std::ostream &os, const Archetype &archetype);
 };

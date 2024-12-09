@@ -10,6 +10,7 @@
 #include "archetype.cpp"
 #include "entity.cpp"
 #include "component.cpp"
+#include "view.cpp"
 
 // TEST(ViewIteration, "View iteration")
 // {

@@ -11,6 +11,7 @@
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype.hpp"
 #include "amuse_ecs/entity_info.hpp"
+#include "amuse_ecs/view.hpp"
 
 class Entity;
 
@@ -51,6 +52,8 @@ public:
     Entity entity(const std::string &name = "");
 
     Entity find(const std::string &name);
+
+    Entity find(EntityId id);
 
     void destroy_entity(EntityId id);
 
@@ -96,5 +99,21 @@ public:
         {
             delete static_cast<Component *>(component);
         };
+    }
+
+    template <typename... Component>
+    View<Component...> view()
+    {
+        View<Component...> view(*this);
+
+        for (auto &archetype : archetypes)
+        {
+            if (archetype->id.contains<Component...>())
+            {
+                view.archetypes.push_back(archetype.get());
+            }
+        }
+
+        return view;
     }
 };

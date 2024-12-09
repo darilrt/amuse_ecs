@@ -3,6 +3,7 @@
 #include "amuse_ecs/archetype.hpp"
 #include "amuse_ecs/archetype_id.hpp"
 #include "amuse_ecs/world.hpp"
+#include "amuse_ecs/entity.hpp"
 
 Archetype::Archetype(World &world, const ArchetypeId &id)
     : id(id), world(world)
@@ -117,6 +118,11 @@ void Archetype::move_entity(Archetype &new_archetype, EntityId entity_id)
 
     // Remove entity from current archetype
     remove_entity(entity_id);
+}
+
+Entity Archetype::find(EntityId entity_id)
+{
+    return world.find(entity_id);
 }
 
 std::ostream &operator<<(std::ostream &os, const Archetype &archetype)

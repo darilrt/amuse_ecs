@@ -7,6 +7,13 @@
 
 struct ArchetypeId
 {
+    ArchetypeId() = default;
+
+    ArchetypeId(const std::vector<ComponentId> &ids)
+        : ids(ids)
+    {
+    }
+
     std::vector<ComponentId> ids;
 
     ArchetypeId copy() const;
@@ -22,7 +29,7 @@ struct ArchetypeId
     template <typename... Components>
     bool contains() const
     {
-        return contains({typeid(Components)...});
+        return contains(ArchetypeId({ECS_ID(Components)...}));
     }
 
     inline ComponentId at(size_t index) const
