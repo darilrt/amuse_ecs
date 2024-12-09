@@ -26,7 +26,7 @@ public:
         return size;
     }
 
-    typedef std::function<void(Entity, Components *...)> Func;
+    typedef std::function<void(Entity, Components &...)> Func;
 
     void each(Func &&func) const
     {
@@ -34,9 +34,10 @@ public:
         {
             for (size_t i = 0; i < archetype->entities.size(); i++)
             {
+                auto c = std::make_tuple((Components *)archetype->components[ECS_ID(Components)].at(i)...);
                 func(
                     archetype->find(archetype->entities[i]),
-                    (Components *)archetype->components[ECS_ID(Components)].at(i)...);
+                    *std::get<Components *>(c)...);
             }
         }
     }

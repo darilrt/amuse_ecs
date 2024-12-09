@@ -28,13 +28,10 @@ TEST(ViewUse, "Use of a view")
     ASSERT(view.size() == entity_count);
 
     view.each(
-        [&]([[maybe_unused]] Entity e, Position *p, Velocity *v)
+        [&]([[maybe_unused]] Entity e, Position &p, [[maybe_unused]] Velocity &v)
         {
-            ASSERT(p != nullptr);
-            ASSERT(v != nullptr);
-
-            ASSERT(p->x == 1.0);
-            ASSERT(p->y == 2.0);
+            ASSERT(p.x == 1.0);
+            ASSERT(p.y == 2.0);
         });
 
     View<Position> view2 = world.view<Position>();
@@ -43,10 +40,9 @@ TEST(ViewUse, "Use of a view")
     ASSERT(view2.size() == entity_count * 2);
 
     view2.each(
-        [&]([[maybe_unused]] Entity e, Position *p)
+        [&]([[maybe_unused]] Entity e, Position &p)
         {
-            ASSERT(p != nullptr);
-            ASSERT(p->x == 1.0);
-            ASSERT(p->y == 2.0);
+            ASSERT(p.x == 1.0);
+            ASSERT(p.y == 2.0);
         });
 }
