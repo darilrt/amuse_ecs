@@ -49,8 +49,23 @@ TEST(EntityDestroy, "Entity destroy")
 {
     World world;
 
-    // Entity entity0 = world.entity("Entity 0");
-    // Entity entity1 = world.entity("Entity 1");
+    Entity entity0 = world.entity("Entity 0");
+    Entity entity1 = world.entity("Entity 1");
 
     world.dispatch();
+
+    ASSERT(world.find("Entity 0").id() != INVALID_ENTITY);
+    ASSERT(world.find("Entity 1").id() != INVALID_ENTITY);
+
+    entity0.destroy();
+    world.dispatch();
+
+    ASSERT(world.find("Entity 0").id() == INVALID_ENTITY);
+    ASSERT(world.find("Entity 1").id() != INVALID_ENTITY);
+
+    entity1.destroy();
+    world.dispatch();
+
+    ASSERT(world.find("Entity 0").id() == INVALID_ENTITY);
+    ASSERT(world.find("Entity 1").id() == INVALID_ENTITY);
 }

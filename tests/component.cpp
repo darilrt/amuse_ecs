@@ -95,8 +95,6 @@ TEST(ComponentRemoval, "Component removal")
 
     world.dispatch();
 
-    std::cout << entity.meta().archetype << std::endl;
-
     ASSERT(!entity.has<Position>());
     ASSERT(entity.has<Velocity>());
 

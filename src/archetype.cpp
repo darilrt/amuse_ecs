@@ -31,7 +31,7 @@ void Archetype::add_entity(EntityId entity_id)
     }
 }
 
-void Archetype::remve_entity(EntityId entity_id)
+void Archetype::remove_entity(EntityId entity_id)
 {
     auto entity_index = get_entity_index(entity_id);
 
@@ -79,7 +79,10 @@ void Archetype::set_component(EntityId entity_id, ComponentId comp_id, void *com
 
 void *Archetype::get_component(EntityId entity_id, ComponentId comp_id)
 {
-    assert(id.contains(comp_id) && "Archetype does not contain component");
+    if (!id.contains(comp_id))
+    {
+        return nullptr;
+    }
 
     auto entity_index = get_entity_index(entity_id);
 
@@ -113,7 +116,7 @@ void Archetype::move_entity(Archetype &new_archetype, EntityId entity_id)
     }
 
     // Remove entity from current archetype
-    remve_entity(entity_id);
+    remove_entity(entity_id);
 }
 
 std::ostream &operator<<(std::ostream &os, const Archetype &archetype)

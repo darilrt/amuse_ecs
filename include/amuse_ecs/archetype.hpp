@@ -32,7 +32,7 @@ public:
 
     // Remove entity from archetype but not delete components from memory
     // this need to be handled externally
-    void remve_entity(EntityId entity_id);
+    void remove_entity(EntityId entity_id);
 
     size_t get_entity_index(EntityId entity_id);
 

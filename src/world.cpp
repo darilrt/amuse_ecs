@@ -153,12 +153,24 @@ void World::dispatch()
             // Add entity to archetype
             archetype->add_entity(action.meta.id);
 
-            // Add entity to world
-            entities.push_back({
-                .id = action.meta.id,
-                .archetype = archetype,
-                .name = action.meta.name,
-            });
+            // Find entity with the given id
+            auto it = std::find_if(entities.begin(), entities.end(), [action](const EntityMeta &entity)
+                                   { return entity.id == action.meta.id; });
+
+            // If entity is not found, create a new one
+
+            if (it == entities.end())
+            {
+                entities.push_back({
+                    .id = action.meta.id,
+                    .archetype = archetype,
+                    .name = action.meta.name,
+                });
+            }
+            else
+            {
+                it->archetype = archetype;
+            }
 
             // Set component data
             for (const std::pair<ComponentId, void *> &component : action.components)
@@ -171,20 +183,49 @@ void World::dispatch()
 
         case ActionInfo::Type::DestroyEntity:
         {
-            throw std::runtime_error("Not implemented");
+            // Check if entity was destroyed
+            auto it = std::find(free_entities.begin(), free_entities.end(), action.meta.id);
+
+            if (it != free_entities.end())
+            {
+                break;
+            }
+
+            free_entities.push_back(action.meta.id);
+
+            EntityMeta &meta = entities[action.meta.id];
+
+            auto index = meta.archetype->get_entity_index(action.meta.id);
+            // Delete memory of all components
+            for (auto &component : meta.archetype->components)
+            {
+                void *data = component.second[index];
+                delete_component(component.first, data);
+                component.second[index] = nullptr;
+            }
+
+            // Remove entity from archetype
+            meta.archetype->remove_entity(action.meta.id);
+            meta.name.clear();
+            meta.archetype = nullptr;
             break;
         }
 
         case ActionInfo::Type::AddComponent:
         {
-            // Find entity with the given id
-            auto it = std::find_if(entities.begin(), entities.end(), [action](const EntityMeta &entity)
-                                   { return entity.id == action.meta.id; });
+            // Check if entity was destroyed
+            auto it = std::find(free_entities.begin(), free_entities.end(), action.meta.id);
 
-            assert(it != entities.end() && "Entity not found");
+            if (it != free_entities.end())
+            {
+                break;
+            }
+
+            // Find entity with the given id
+            EntityMeta *meta = &entities[action.meta.id];
 
             // Get the new archetype id
-            ArchetypeId new_archetype_id = it->archetype->id.copy();
+            ArchetypeId new_archetype_id = meta->archetype->id.copy();
 
             for (const std::pair<ComponentId, void *> &component : action.components)
             {
@@ -195,8 +236,8 @@ void World::dispatch()
             Archetype &new_archetype = get_archetype(new_archetype_id);
 
             // Move entity to new archetype
-            it->archetype->move_entity(new_archetype, action.meta.id);
-            it->archetype = &new_archetype;
+            meta->archetype->move_entity(new_archetype, action.meta.id);
+            meta->archetype = &new_archetype;
 
             // Set component data
             for (const std::pair<ComponentId, void *> &component : action.components)
@@ -209,14 +250,19 @@ void World::dispatch()
 
         case ActionInfo::Type::RemoveComponent:
         {
-            // Find entity with the given id
-            auto it = std::find_if(entities.begin(), entities.end(), [action](const EntityMeta &entity)
-                                   { return entity.id == action.meta.id; });
+            // Check if entity was destroyed
+            auto it = std::find(free_entities.begin(), free_entities.end(), action.meta.id);
 
-            assert(it != entities.end() && "Entity not found");
+            if (it != free_entities.end())
+            {
+                break;
+            }
+
+            // Find entity with the given id
+            EntityMeta *meta = &entities[action.meta.id];
 
             // Get the new archetype id
-            ArchetypeId new_archetype_id = it->archetype->id.copy();
+            ArchetypeId new_archetype_id = meta->archetype->id.copy();
 
             for (const std::pair<ComponentId, void *> &component : action.components)
             {
@@ -229,13 +275,14 @@ void World::dispatch()
             // Delete memory of removed component
             for (const std::pair<ComponentId, void *> &component : action.components)
             {
-                void *data = it->archetype->get_component(action.meta.id, component.first);
+                void *data = meta->archetype->get_component(action.meta.id, component.first);
                 delete_component(component.first, data);
+                meta->archetype->set_component(action.meta.id, component.first, nullptr);
             }
 
             // Move entity to new archetype
-            it->archetype->move_entity(new_archetype, action.meta.id);
-            it->archetype = &new_archetype;
+            meta->archetype->move_entity(new_archetype, action.meta.id);
+            meta->archetype = &new_archetype;
             break;
         }
         }
