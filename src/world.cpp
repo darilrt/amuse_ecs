@@ -61,15 +61,8 @@ Entity World::find(const std::string &name)
 
 Entity World::find(EntityId id)
 {
-    for (EntityMeta &entity : entities)
-    {
-        if (entity.id == id)
-        {
-            return Entity(*this, entity.id, &entity);
-        }
-    }
-
-    return Entity(*this, INVALID_ENTITY, nullptr);
+    EntityMeta &meta = entities[id];
+    return Entity(*this, id, &meta);
 }
 
 void World::destroy_entity(EntityId id)
