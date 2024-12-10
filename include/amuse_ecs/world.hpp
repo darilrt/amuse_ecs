@@ -7,6 +7,7 @@
 #include <functional>
 #include <utility>
 #include <cassert>
+#include <list>
 
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype.hpp"
@@ -39,7 +40,7 @@ public:
 
     // Actions to be processed at the end of the frame or at the end of the world update
     // This is used to avoid modifying the world while iterating over it
-    std::vector<ActionInfo> actions;
+    std::list<ActionInfo> actions;
 
     // Map of component delete functions
     std::unordered_map<ComponentId, std::function<void(void *)>> component_deleters;

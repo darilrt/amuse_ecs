@@ -81,7 +81,7 @@ Entity World::entity_with_components(const std::string &name, const std::vector<
     actions.push_back(ActionInfo{
         .type = ActionInfo::Type::CreateEntity, // Action type is to create entity
         .meta = meta,                           // EntityMeta created above
-        .archetype_id = archetype_id,           // ArchetypeId void because entity has no components yet
+        .archetype_id = archetype_id,           // ArchetypeId with components to be added to entity
         .components = components,               // Components to be added to entity
     });
 
@@ -207,7 +207,6 @@ void World::dispatch()
                                    { return entity.id == action.meta.id; });
 
             // If entity is not found, create a new one
-
             if (it == entities.end())
             {
                 entities.push_back({
@@ -219,6 +218,7 @@ void World::dispatch()
             else
             {
                 it->archetype = archetype;
+                it->name = action.meta.name;
             }
 
             // Set component data
