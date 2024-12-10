@@ -69,11 +69,19 @@ Entity World::entity_with_components(const std::string &name, const std::vector<
         .name = name          // Name of the entity
     };
 
+    auto archetype_id = ArchetypeId();
+
+    // Get the new archetype id
+    for (const std::pair<ComponentId, void *> &component : components)
+    {
+        archetype_id.add(component.first);
+    }
+
     // Create action to create entity
     actions.push_back(ActionInfo{
         .type = ActionInfo::Type::CreateEntity, // Action type is to create entity
         .meta = meta,                           // EntityMeta created above
-        .archetype_id = ArchetypeId(),          // ArchetypeId void because entity has no components yet
+        .archetype_id = archetype_id,           // ArchetypeId void because entity has no components yet
         .components = components,               // Components to be added to entity
     });
 

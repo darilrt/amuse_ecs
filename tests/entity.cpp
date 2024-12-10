@@ -26,6 +26,25 @@ TEST(EntityCreation, "Entity creation")
     ASSERT(world.entities[1].name == "Entity 1");
 }
 
+TEST(EntityCreationWithComponents, "Entity creation with components")
+{
+    World world;
+    world.register_component<Position>();
+    world.register_component<Velocity>();
+
+    Entity entity = world.entity("Entity 0", Position{1.0f, 2.0f}, Velocity{3.0f, 4.0f});
+
+    world.dispatch();
+
+    ASSERT(world.entities.size() == 1);
+
+    EntityMeta &meta = world.entities[0];
+
+    ASSERT(meta.name == "Entity 0");
+    ASSERT(entity.has<Position>());
+    ASSERT(entity.has<Velocity>());
+}
+
 TEST(FindEntity, "Find entity")
 {
     World world;
