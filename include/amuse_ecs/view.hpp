@@ -34,7 +34,7 @@ public:
             {
                 func(
                     archetype->find(archetype->entities[i]),
-                    *static_cast<Components *>(archetype->component_data[ECS_ID(Components)].at(i))...);
+                    *static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
             }
         }
     }
@@ -45,7 +45,7 @@ public:
         {
             for (size_t i = 0; i < archetype->entities.size(); i++)
             {
-                func(*static_cast<Components *>(archetype->component_data[ECS_ID(Components)].at(i))...);
+                func(*static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
             }
         }
     }
