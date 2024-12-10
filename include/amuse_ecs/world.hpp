@@ -11,9 +11,8 @@
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype.hpp"
 #include "amuse_ecs/entity_info.hpp"
+#include "amuse_ecs/entity.hpp"
 #include "amuse_ecs/view.hpp"
-
-class Entity;
 
 class World
 {
@@ -50,6 +49,14 @@ public:
     // Register a new action to create a new entity
     // This action will be processed when dispatch is called
     Entity entity(const std::string &name = "");
+
+    Entity entity_with_components(const std::string &name, const std::vector<std::pair<ComponentId, void *>> &components);
+
+    template <typename... Components>
+    Entity entity(const std::string &name = "", Components... components)
+    {
+        return entity_with_components(name, {std::make_pair(ECS_ID(Components), static_cast<void *>(&components))...});
+    }
 
     Entity find(const std::string &name);
 

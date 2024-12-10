@@ -46,6 +46,41 @@ Entity World::entity(const std::string &name)
     return Entity(*this, id, &actions.back().meta);
 }
 
+Entity World::entity_with_components(const std::string &name, const std::vector<std::pair<ComponentId, void *>> &components)
+{
+    EntityId id;
+
+    // If there are free entities, use one of them
+    // Otherwise, create a new entity id
+    if (free_entities.size() > 0)
+    {
+        id = free_entities.back();
+        free_entities.pop_back();
+    }
+    else
+    {
+        id = next_entity_id++;
+    }
+
+    // Create entity meta
+    EntityMeta meta{
+        .id = id,             // EntityId to be used
+        .archetype = nullptr, // nullptr because it's not used yet
+        .name = name          // Name of the entity
+    };
+
+    // Create action to create entity
+    actions.push_back(ActionInfo{
+        .type = ActionInfo::Type::CreateEntity, // Action type is to create entity
+        .meta = meta,                           // EntityMeta created above
+        .archetype_id = ArchetypeId(),          // ArchetypeId void because entity has no components yet
+        .components = components,               // Components to be added to entity
+    });
+
+    // Return entity
+    return Entity(*this, id, &actions.back().meta);
+}
+
 Entity World::find(const std::string &name)
 {
     for (EntityMeta &entity : entities)
