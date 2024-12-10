@@ -26,9 +26,7 @@ public:
         return size;
     }
 
-    typedef std::function<void(Entity, Components &...)> Func;
-
-    void each(Func &&func) const
+    void each(std::function<void(Entity, Components &...)> &&func) const
     {
         for (auto archetype : archetypes)
         {
@@ -37,6 +35,17 @@ public:
                 func(
                     archetype->find(archetype->entities[i]),
                     *static_cast<Components *>(archetype->component_data[ECS_ID(Components)].at(i))...);
+            }
+        }
+    }
+
+    void each(std::function<void(Components &...)> &&func) const
+    {
+        for (auto archetype : archetypes)
+        {
+            for (size_t i = 0; i < archetype->entities.size(); i++)
+            {
+                func(*static_cast<Components *>(archetype->component_data[ECS_ID(Components)].at(i))...);
             }
         }
     }
