@@ -209,12 +209,13 @@ void World::dispatch()
             EntityMeta &meta = entities[action.meta.id];
 
             auto index = meta.archetype->get_entity_index(action.meta.id);
+
             // Delete memory of all components
-            for (auto &component : meta.archetype->components)
+            for (auto comp_id : meta.archetype->id)
             {
-                void *data = component.second[index];
-                delete_component(component.first, data);
-                component.second[index] = nullptr;
+                void *data = meta.archetype->component_data[comp_id][index];
+                delete_component(comp_id, data);
+                meta.archetype->component_data[comp_id][index] = nullptr;
             }
 
             // Remove entity from archetype

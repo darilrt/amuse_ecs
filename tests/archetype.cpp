@@ -68,6 +68,7 @@ TEST(ArchetypeDeleteEntity, "Archetype delete entity")
     {
         CompA *comp_a = static_cast<CompA *>(archetype.get_component(i, ECS_ID(CompA)));
         delete comp_a;
+        archetype.set_component(i, ECS_ID(CompA), nullptr);
         archetype.remove_entity(i);
     }
 

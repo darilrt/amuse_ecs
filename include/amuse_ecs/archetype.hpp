@@ -26,7 +26,7 @@ public:
     //       0 | Comp*    | Comp*    | Comp*    | ... |
     //       1 | Comp*    | Comp*    | Comp*    | ... |
     //       2 | Comp*    | Comp*    | Comp*    | ... |
-    std::unordered_map<ComponentId, std::vector<void *>> components;
+    std::vector<std::vector<void *>> component_data;
 
     Archetype(World &world, const ArchetypeId &id);
 

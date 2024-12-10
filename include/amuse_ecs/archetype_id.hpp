@@ -37,6 +37,21 @@ struct ArchetypeId
         return ids.at(index);
     }
 
+    inline size_t size() const
+    {
+        return ids.size();
+    }
+
+    std::vector<ComponentId>::const_iterator begin() const
+    {
+        return ids.begin();
+    }
+
+    std::vector<ComponentId>::const_iterator end() const
+    {
+        return ids.end();
+    }
+
     bool operator==(const ArchetypeId &other) const
     {
         return ids == other.ids;

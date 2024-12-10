@@ -34,7 +34,7 @@ public:
         {
             for (size_t i = 0; i < archetype->entities.size(); i++)
             {
-                auto c = std::make_tuple((Components *)archetype->components[ECS_ID(Components)].at(i)...);
+                auto c = std::make_tuple((Components *)archetype->component_data[ECS_ID(Components)].at(i)...);
                 func(
                     archetype->find(archetype->entities[i]),
                     *std::get<Components *>(c)...);

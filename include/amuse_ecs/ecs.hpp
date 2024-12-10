@@ -5,9 +5,22 @@
 
 typedef uint64_t EcsId;
 typedef EcsId EntityId;
-typedef std::type_index ComponentId;
+typedef EcsId ComponentId;
 
-#define ECS_ID(name) std::type_index(typeid(name))
+#define ECS_ID(name) ComponentTypeIndex::index_of<name>()
+
+class ComponentTypeIndex
+{
+    static ComponentId last_index;
+
+public:
+    template <typename C>
+    inline static ComponentId index_of()
+    {
+        static ComponentId id = ComponentTypeIndex::last_index++;
+        return id;
+    }
+};
 
 enum : EcsId
 {

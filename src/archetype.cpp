@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 
 #include "amuse_ecs/archetype.hpp"
 #include "amuse_ecs/archetype_id.hpp"
@@ -14,10 +15,24 @@ Archetype::Archetype(World &world, const ArchetypeId &id)
         assert(world.archetypes[i]->id != id && "Archetype already exists");
     }
 
-    // Initialize component data
-    for (auto comp_id : id.ids)
+    // Resize component data
+    ComponentId max_id;
+
+    if (id.size() == 0)
     {
-        components[comp_id] = std::vector<void *>();
+        max_id = -1;
+    }
+    else
+    {
+        max_id = *std::max_element(id.begin(), id.end());
+    }
+
+    component_data.resize(max_id + 1);
+
+    // Initialize component data
+    for (auto comp_id : id)
+    {
+        component_data[comp_id] = std::vector<void *>();
     }
 }
 
@@ -25,10 +40,9 @@ void Archetype::add_entity(EntityId entity_id)
 {
     entities.push_back(entity_id);
 
-    for (auto &[comp_id, comp_data] : components)
+    for (auto comp_id : id)
     {
-        comp_data.resize(entities.size());
-        comp_data.back() = nullptr;
+        component_data[comp_id].push_back(nullptr);
     }
 }
 
@@ -38,20 +52,31 @@ void Archetype::remove_entity(EntityId entity_id)
 
     assert(entity_index != -1 && "Entity does not exist in archetype");
 
-    // Swap entity with last entity
-    entities[entity_index] = entities.back();
+    entities.erase(entities.begin() + entity_index);
 
-    // Remove last entity
-    entities.pop_back();
-
-    for (auto &[comp_id, comp_data] : components)
+    for (auto comp_id : id)
     {
-        // Swap component with last component
-        comp_data[entity_index] = comp_data.back();
-
-        // Remove last component
-        comp_data.pop_back();
+        auto comp_data = component_data[comp_id];
+        comp_data.erase(comp_data.begin() + entity_index);
     }
+
+    // // Swap entity with last entity
+    // entities[entity_index] = entities.back();
+
+    // // Remove last entity
+    // entities.pop_back();
+
+    // // Remove entity from component data
+    // for (auto comp_id : id)
+    // {
+    //     auto comp_data = component_data[comp_id];
+
+    //     // Swap component with last component
+    //     comp_data[entity_index] = comp_data.back();
+
+    //     // Remove last component
+    //     comp_data.pop_back();
+    // }
 }
 
 size_t Archetype::get_entity_index(EntityId entity_id)
@@ -75,7 +100,7 @@ void Archetype::set_component(EntityId entity_id, ComponentId comp_id, void *com
 
     assert(entity_index != -1 && "Entity does not exist in archetype");
 
-    components[comp_id][entity_index] = component;
+    component_data[comp_id][entity_index] = component;
 }
 
 void *Archetype::get_component(EntityId entity_id, ComponentId comp_id)
@@ -89,7 +114,7 @@ void *Archetype::get_component(EntityId entity_id, ComponentId comp_id)
 
     assert(entity_index != -1 && "Entity does not exist in archetype");
 
-    return components[comp_id][entity_index];
+    return component_data[comp_id][entity_index];
 }
 
 void Archetype::move_entity(Archetype &new_archetype, EntityId entity_id)
@@ -103,8 +128,10 @@ void Archetype::move_entity(Archetype &new_archetype, EntityId entity_id)
     new_archetype.add_entity(entity_id);
 
     // Move components to new archetype
-    for (auto &[comp_id, comp_data] : components)
+    for (auto comp_id : id)
     {
+        auto comp_data = component_data[comp_id];
+
         // if component exists in new archetype move else delete
         if (new_archetype.id.contains(comp_id))
         {
@@ -137,9 +164,9 @@ std::ostream &operator<<(std::ostream &os, const Archetype &archetype)
     // ...
     os << "Entity | ";
 
-    for (auto &[comp_id, comp_data] : archetype.components)
+    for (auto comp_id : archetype.id)
     {
-        os << comp_id.name() << " | ";
+        os << comp_id << " | ";
     }
 
     os << std::endl;
@@ -148,8 +175,9 @@ std::ostream &operator<<(std::ostream &os, const Archetype &archetype)
     {
         os << i << " | ";
 
-        for (auto &[comp_id, comp_data] : archetype.components)
+        for (auto comp_id : archetype.id)
         {
+            auto comp_data = archetype.component_data[comp_id];
             os << comp_data[i] << " | ";
         }
 

@@ -54,7 +54,7 @@ std::ostream &operator<<(std::ostream &os, const ArchetypeId &id)
 
     for (size_t i = 0; i < id.ids.size(); i++)
     {
-        os << id.ids[i].name();
+        os << id.ids[i];
 
         if (i < id.ids.size() - 1)
         {
