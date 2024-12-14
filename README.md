@@ -26,8 +26,10 @@ int main() {
 
     world.dispatch();
 
+    auto view = world.view<Position, Velocity>();
+
     while (true) {
-        world.for_each<Position, Velocity>([](ecs::Entity entity, Position& position, Velocity& velocity) {
+        view.each([](Position& position, Velocity& velocity) {
             position.x += velocity.x;
             position.y += velocity.y;
         });
