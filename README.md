@@ -24,6 +24,8 @@ int main() {
         .add<Position>({ 0.0f, 0.0f })
         .add<Velocity>({ 1.0f, 1.0f });
 
+    world.dispatch();
+
     while (true) {
         world.for_each<Position, Velocity>([](ecs::Entity entity, Position& position, Velocity& velocity) {
             position.x += velocity.x;
