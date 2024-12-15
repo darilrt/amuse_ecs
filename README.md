@@ -1,4 +1,4 @@
-#Amuse ECS
+# Amuse ECS
 
 Amuse ECS is a simple Entity Component System (ECS) library for c++. It is designed to be simple to use and easy to understand. It is also designed to be fast and efficient. 
 
