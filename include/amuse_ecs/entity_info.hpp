@@ -4,9 +4,12 @@
 
 #include "amuse_ecs/archetype.hpp"
 
-struct EntityMeta
+namespace ecs
 {
-    EntityId id;
-    Archetype *archetype;
-    std::string name;
-};
+    struct EntityMeta
+    {
+        EntityId id;
+        Archetype *archetype;
+        std::string name;
+    };
+} // namespace ecs

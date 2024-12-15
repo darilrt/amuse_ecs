@@ -5,12 +5,12 @@
 
 TEST(ArchetypeIdMethods, "Test ArchetypeId methods")
 {
-    ArchetypeId id0;
+    ecs::ArchetypeId id0;
 
     id0.add(ECS_ID(CompA));
     id0.add(ECS_ID(CompB));
 
-    ArchetypeId id0eq;
+    ecs::ArchetypeId id0eq;
     id0eq.add(ECS_ID(CompB));
     id0eq.add(ECS_ID(CompA));
 
@@ -21,7 +21,7 @@ TEST(ArchetypeIdMethods, "Test ArchetypeId methods")
     ASSERT(id0.contains(ECS_ID(CompA)));
     ASSERT(id0.contains(ECS_ID(CompB)));
 
-    ArchetypeId id1;
+    ecs::ArchetypeId id1;
     id1.add(ECS_ID(CompA));
 
     // Check if the ids are not equal

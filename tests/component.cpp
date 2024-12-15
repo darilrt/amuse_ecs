@@ -6,7 +6,7 @@
 
 TEST(ComponentRegistration, "Component registration")
 {
-    World world;
+    ecs::World world;
     world.register_component<Position>();
 
     ASSERT(world.component_deleters.size() == 1);
@@ -14,15 +14,15 @@ TEST(ComponentRegistration, "Component registration")
 
 TEST(ComponentAddition, "Component addition")
 {
-    World world;
+    ecs::World world;
     world.register_component<Position>();
     world.register_component<Velocity>();
 
-    [[maybe_unused]] Entity entity0 = world.entity()
-                                          .add<Position>({1.0f, 2.0f})
-                                          .add<Velocity>({3.0f, 4.0f});
+    ecs::Entity entity0 = world.entity()
+                              .add<Position>({1.0f, 2.0f})
+                              .add<Velocity>({3.0f, 4.0f});
 
-    Entity entity1 = world.entity();
+    ecs::Entity entity1 = world.entity();
 
     world.dispatch();
 
@@ -31,7 +31,7 @@ TEST(ComponentAddition, "Component addition")
 
     world.dispatch();
 
-    Archetype &archetype = world.get_archetype<Position, Velocity>();
+    ecs::Archetype &archetype = world.get_archetype<Position, Velocity>();
 
     ASSERT(archetype.entities.size() == 2);
 
@@ -62,10 +62,10 @@ TEST(ComponentAddition, "Component addition")
 
 TEST(ComponentGet, "Component get")
 {
-    World world;
+    ecs::World world;
     world.register_component<Position>();
 
-    Entity entity = world.entity().add<Position>({1.0f, 2.0f});
+    ecs::Entity entity = world.entity().add<Position>({1.0f, 2.0f});
 
     world.dispatch();
 
@@ -81,13 +81,13 @@ TEST(ComponentGet, "Component get")
 
 TEST(ComponentRemoval, "Component removal")
 {
-    World world;
+    ecs::World world;
     world.register_component<Position>();
     world.register_component<Velocity>();
 
-    Entity entity = world.entity()
-                        .add<Position>({1.0f, 2.0f})
-                        .add<Velocity>({3.0f, 4.0f});
+    ecs::Entity entity = world.entity()
+                             .add<Position>({1.0f, 2.0f})
+                             .add<Velocity>({3.0f, 4.0f});
 
     world.dispatch();
 

@@ -7,20 +7,23 @@ typedef uint64_t EcsId;
 typedef EcsId EntityId;
 typedef EcsId ComponentId;
 
-#define ECS_ID(name) ComponentTypeIndex::index_of<name>()
+#define ECS_ID(name) ecs::ComponentTypeIndex::index_of<name>()
 
-class ComponentTypeIndex
+namespace ecs
 {
-    static ComponentId last_index;
-
-public:
-    template <typename C>
-    inline static ComponentId index_of()
+    class ComponentTypeIndex
     {
-        static ComponentId id = ComponentTypeIndex::last_index++;
-        return id;
-    }
-};
+        static ComponentId last_index;
+
+    public:
+        template <typename C>
+        inline static ComponentId index_of()
+        {
+            static ComponentId id = ComponentTypeIndex::last_index++;
+            return id;
+        }
+    };
+} // namespace ecs
 
 enum : EcsId
 {

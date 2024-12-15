@@ -6,12 +6,12 @@
 
 TEST(ArchetypeCreation, "Archetype creation")
 {
-    World world;
+    ecs::World world;
 
-    Archetype &archetype_a = world.get_archetype<CompA>();
-    Archetype &archetype_ab = world.get_archetype<CompA, CompB>();
-    Archetype &archetype_ba = world.get_archetype<CompB, CompA>();
-    Archetype &archetype_b = world.get_archetype<CompB>();
+    ecs::Archetype &archetype_a = world.get_archetype<CompA>();
+    ecs::Archetype &archetype_ab = world.get_archetype<CompA, CompB>();
+    ecs::Archetype &archetype_ba = world.get_archetype<CompB, CompA>();
+    ecs::Archetype &archetype_b = world.get_archetype<CompB>();
 
     // Archetype <CompA, CompB> should be the same as <CompB, CompA>
     ASSERT(archetype_ab.id == archetype_ba.id);
@@ -29,9 +29,9 @@ TEST(ArchetypeCreation, "Archetype creation")
 
 TEST(ArchetypeAddEntitySetGetComponent, "Archetype add entity, set and get component")
 {
-    World world;
+    ecs::World world;
 
-    Archetype &archetype = world.get_archetype<CompA>();
+    ecs::Archetype &archetype = world.get_archetype<CompA>();
 
     const int num_entities = 10;
 
@@ -52,9 +52,9 @@ TEST(ArchetypeAddEntitySetGetComponent, "Archetype add entity, set and get compo
 
 TEST(ArchetypeDeleteEntity, "Archetype delete entity")
 {
-    World world;
+    ecs::World world;
 
-    Archetype &archetype = world.get_archetype<CompA>();
+    ecs::Archetype &archetype = world.get_archetype<CompA>();
 
     const int num_entities = 10;
 
@@ -77,11 +77,11 @@ TEST(ArchetypeDeleteEntity, "Archetype delete entity")
 
 TEST(ArchetypeMoveEntity, "Archetype move entities between archetypes")
 {
-    World world;
+    ecs::World world;
 
-    Archetype &archetype_a = world.get_archetype<CompA>();
-    Archetype &archetype_b = world.get_archetype<CompA, CompB>();
-    [[maybe_unused]] Archetype &archetype_c = world.get_archetype<CompB>();
+    ecs::Archetype &archetype_a = world.get_archetype<CompA>();
+    ecs::Archetype &archetype_b = world.get_archetype<CompA, CompB>();
+    [[maybe_unused]] ecs::Archetype &archetype_c = world.get_archetype<CompB>();
 
     const int num_entities = 10;
 
