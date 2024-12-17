@@ -4,14 +4,16 @@
 
 namespace ecs
 {
+    EVENT(Start);
+    EVENT(PreUpdate);
+    EVENT(Update);
+    EVENT(PostUpdate);
+
     class App
     {
+        World _world;
+
     public:
-        World world;
-
-        App();
-        ~App();
-
         template <typename Module>
         App &use()
         {
@@ -19,12 +21,17 @@ namespace ecs
             return *this;
         }
 
+        inline World &world()
+        {
+            return _world;
+        }
+
         void run();
 
         template <typename Component>
         inline void register_component()
         {
-            world.register_component<Component>();
+            _world.register_component<Component>();
         }
 
         template <typename... Components>

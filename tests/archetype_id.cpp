@@ -36,3 +36,20 @@ TEST(ArchetypeIdMethods, "Test ArchetypeId methods")
     // Check if id0 contains id1
     ASSERT(id0.contains(id1));
 }
+
+TEST(ArchetypeIdFromIds, "Test ArchetypeId from_ids")
+{
+    ecs::ArchetypeId id0 = ecs::ArchetypeId::from_ids({ECS_ID(CompA), ECS_ID(CompB)});
+
+    ecs::ArchetypeId id1 = ecs::ArchetypeId::from_ids({ECS_ID(CompA)});
+
+    // Check if the ids contain the correct components
+    ASSERT(id0.contains(ECS_ID(CompA)));
+    ASSERT(id0.contains(ECS_ID(CompB)));
+
+    // Check if the ids contain the correct components
+    ASSERT(id1.contains(ECS_ID(CompA)));
+
+    // Check if the ids do not contain the correct components
+    ASSERT(!id1.contains(ECS_ID(CompB)));
+}

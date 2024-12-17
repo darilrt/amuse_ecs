@@ -229,6 +229,21 @@ namespace ecs
                     archetype->set_component(action.meta.id, component.first, component.second);
                 }
 
+                // Emit event for all component added
+                ArchetypeId archetype_id({});
+
+                for (const std::pair<ComponentId, void *> &component : action.components)
+                {
+                    archetype_id.add(component.first);
+
+                    auto it = event_handlers.find(archetype_id);
+
+                    if (it != event_handlers.end())
+                    {
+                        it->second->emit<Set>();
+                    }
+                }
+
                 break;
             }
 
@@ -277,7 +292,8 @@ namespace ecs
                 EntityMeta *meta = &entities[action.meta.id];
 
                 // Get the new archetype id
-                ArchetypeId new_archetype_id = meta->archetype->id.copy();
+                ArchetypeId old_archetype_id = meta->archetype->id.copy();
+                ArchetypeId new_archetype_id = old_archetype_id.copy();
 
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
@@ -295,6 +311,21 @@ namespace ecs
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
                     new_archetype.set_component(action.meta.id, component.first, component.second);
+                }
+
+                // Emit event for all component added
+                ArchetypeId archetype_id = old_archetype_id.copy();
+
+                for (const std::pair<ComponentId, void *> &component : action.components)
+                {
+                    archetype_id.add(component.first);
+
+                    auto it = event_handlers.find(archetype_id);
+
+                    if (it != event_handlers.end())
+                    {
+                        it->second->emit<Set>();
+                    }
                 }
 
                 break;
@@ -381,5 +412,17 @@ namespace ecs
 
         // Call component deleter function
         it->second(component);
+    }
+
+    void World::add_event(const ArchetypeId &archetype_id, const std::type_index &event_type, const std::function<void(void)> &handler)
+    {
+        auto it = event_handlers.find(archetype_id);
+
+        if (it == event_handlers.end())
+        {
+            event_handlers[archetype_id] = std::make_unique<EventHandler>();
+        }
+
+        event_handlers[archetype_id]->add(event_type, handler);
     }
 } // namespace ecs

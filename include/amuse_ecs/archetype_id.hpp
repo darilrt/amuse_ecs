@@ -44,6 +44,17 @@ namespace ecs
             return ids.size();
         }
 
+        inline static ArchetypeId from_ids(const std::vector<ComponentId> &ids)
+        {
+            return ArchetypeId(ids);
+        }
+
+        template <typename... Components>
+        inline static ArchetypeId from_components()
+        {
+            return ArchetypeId({ECS_ID(Components)...});
+        }
+
         std::vector<ComponentId>::const_iterator begin() const
         {
             return ids.begin();
@@ -67,3 +78,19 @@ namespace ecs
         friend std::ostream &operator<<(std::ostream &os, const ArchetypeId &id);
     };
 } // namespace ecs
+
+template <>
+struct std::hash<ecs::ArchetypeId>
+{
+    size_t operator()(const ecs::ArchetypeId &id) const
+    {
+        size_t hash = 0;
+
+        for (auto component_id : id.ids)
+        {
+            hash ^= component_id;
+        }
+
+        return hash;
+    }
+};

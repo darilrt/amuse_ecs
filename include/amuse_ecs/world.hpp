@@ -14,9 +14,12 @@
 #include "amuse_ecs/entity_info.hpp"
 #include "amuse_ecs/entity.hpp"
 #include "amuse_ecs/view.hpp"
+#include "amuse_ecs/event_handler.hpp"
 
 namespace ecs
 {
+    EVENT(Set);
+
     class World
     {
         struct ActionInfo
@@ -34,6 +37,7 @@ namespace ecs
         };
 
     public:
+        std::unordered_map<ArchetypeId, std::unique_ptr<EventHandler>> event_handlers;
         std::vector<EntityMeta> entities;
         std::vector<std::unique_ptr<Archetype>> archetypes;
 
@@ -125,6 +129,14 @@ namespace ecs
             }
 
             return view;
+        }
+
+        void add_event(const ArchetypeId &archetype_id, const std::type_index &event_type, const std::function<void(void)> &handler);
+
+        template <typename Event>
+        inline void on(const ArchetypeId &archetype_id, const std::function<void(void)> &handler)
+        {
+            add_event(archetype_id, std::type_index(typeid(Event)), handler);
         }
     };
 } // namespace ecs
