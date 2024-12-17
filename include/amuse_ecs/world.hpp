@@ -131,6 +131,16 @@ namespace ecs
             return view;
         }
 
+        template <typename Event>
+        inline void emit(const ArchetypeId &archetype_id)
+        {
+            auto it = event_handlers.find(archetype_id);
+            if (it != event_handlers.end())
+            {
+                it->second->emit<Event>();
+            }
+        }
+
         void add_event(const ArchetypeId &archetype_id, const std::type_index &event_type, const std::function<void(void)> &handler);
 
         template <typename Event>

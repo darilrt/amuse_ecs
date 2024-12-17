@@ -9,15 +9,30 @@ TEST(WorldEvent, "Event handling")
     world.register_component<Position>();
     world.register_component<Velocity>();
 
-    auto archetype_id = ecs::ArchetypeId::from_components<Position, Velocity>();
+    bool called_position = false;
+    bool called_velocity = false;
+    bool called_position_velocity = false;
 
-    bool called = false;
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Position>(),
+        [&]()
+        {
+            called_position = true;
+        });
 
-    world.on<ecs::Set>(archetype_id,
-                       [&]()
-                       {
-                           called = true;
-                       });
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Velocity>(),
+        [&]()
+        {
+            called_velocity = true;
+        });
+
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Position, Velocity>(),
+        [&]()
+        {
+            called_position_velocity = true;
+        });
 
     world.entity()
         .add<Position>({1.0f, 2.0f})
@@ -25,5 +40,7 @@ TEST(WorldEvent, "Event handling")
 
     world.dispatch();
 
-    ASSERT(called);
+    ASSERT(called_position);
+    ASSERT(called_velocity);
+    ASSERT(called_position_velocity);
 }

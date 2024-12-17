@@ -230,18 +230,15 @@ namespace ecs
                 }
 
                 // Emit event for all component added
-                ArchetypeId archetype_id({});
+                ArchetypeId archetype_id;
 
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
+                    ArchetypeId id({component.first});
+                    emit<Set>(id);
+
                     archetype_id.add(component.first);
-
-                    auto it = event_handlers.find(archetype_id);
-
-                    if (it != event_handlers.end())
-                    {
-                        it->second->emit<Set>();
-                    }
+                    emit<Set>(archetype_id);
                 }
 
                 break;
@@ -318,16 +315,12 @@ namespace ecs
 
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
+                    ArchetypeId id({component.first});
+                    emit<Set>(id);
+
                     archetype_id.add(component.first);
-
-                    auto it = event_handlers.find(archetype_id);
-
-                    if (it != event_handlers.end())
-                    {
-                        it->second->emit<Set>();
-                    }
+                    emit<Set>(archetype_id);
                 }
-
                 break;
             }
 

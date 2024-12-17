@@ -11,13 +11,12 @@ struct ModuleA
         app.register_component<Velocity>();
 
         // app.system<Position>()
-        //     // .on<ecs::Set>(
-        //     //     [](ecs::World &world, Position &p)
-        //     //     {
-        //     //         p.x = 1.0f;
-        //     //         p.y = 2.0f;
-        //     //     })
-        //     ;
+        //     .on<ecs::Set>(
+        //         []()
+        //         {
+        //             p.x = 1.0f;
+        //             p.y = 2.0f;
+        //         });
     }
 };
 
