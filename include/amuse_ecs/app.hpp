@@ -5,10 +5,23 @@
 
 namespace ecs
 {
+    // Start app when App::run is called
     EVENT(Start);
+
+    // Frame start event
+    EVENT(FrameStart);
+
+    // Before updating the world on main loop
     EVENT(PreUpdate);
+
+    // Update the world on main loop
     EVENT(Update);
+
+    // After updating the world on main loop
     EVENT(PostUpdate);
+
+    // Last event in the main loop
+    EVENT(FrameEnd);
 
     class App;
 
@@ -62,6 +75,7 @@ namespace ecs
     {
         World _world;
         EventHandler _event_handler;
+        bool _running = false;
 
     public:
         template <typename Module>
@@ -82,6 +96,11 @@ namespace ecs
         }
 
         void run();
+
+        inline void stop()
+        {
+            _running = false;
+        }
 
         template <typename Component>
         inline void register_component()
