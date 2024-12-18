@@ -7,34 +7,38 @@ Amuse ECS is a simple Entity Component System (ECS) library for c++. It is desig
 ```cpp
 #include <ecs.hpp>
 
-struct Position {
-    float x, y;
-};
+struct Game
+{
+    struct Position
+    {
+        float x, y;
+    };
 
-struct Velocity {
-    float x, y;
-};
+    struct Velocity
+    {
+        float x, y;
+    };
 
-int main() {
-    ecs::World world;
-    world.register_component<Position>();
-    world.register_component<Velocity>();
+    Game(ecs::App &app)
+    {
+        app.register_component<Position>();
+        app.register_component<Velocity>();
 
-    world.entity()
-        .add<Position>({ 0.0f, 0.0f })
-        .add<Velocity>({ 1.0f, 1.0f });
-
-    world.dispatch();
-
-    auto view = world.view<Position, Velocity>();
-
-    while (true) {
-        view.each([](Position& position, Velocity& velocity) {
-            position.x += velocity.x;
-            position.y += velocity.y;
-        });
+        app.system<Position, Velocity>()
+            .on<ecs::Update>(
+                [](ecs::App &app, Position &position, Velocity &velocity)
+                {
+                    position.x += velocity.x;
+                    position.y += velocity.y;
+                });
     }
+};
 
+int main()
+{
+    ecs::App()
+        .use<Game>()
+        .run();
     return 0;
 }
 ```
