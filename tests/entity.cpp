@@ -7,9 +7,9 @@
 
 TEST(EntityCreation, "Entity creation")
 {
-    World world;
+    ecs::World world;
 
-    [[maybe_unused]] Entity entity0 = world.entity("Entity 0");
+    world.entity("Entity 0");
 
     ASSERT(world.entities.size() == 0);
 
@@ -18,7 +18,7 @@ TEST(EntityCreation, "Entity creation")
     ASSERT(world.entities.size() == 1);
     ASSERT(world.entities[0].name == "Entity 0");
 
-    [[maybe_unused]] Entity entity1 = world.entity("Entity 1");
+    world.entity("Entity 1");
 
     world.dispatch();
 
@@ -28,17 +28,17 @@ TEST(EntityCreation, "Entity creation")
 
 TEST(EntityCreationWithComponents, "Entity creation with components")
 {
-    World world;
+    ecs::World world;
     world.register_component<Position>();
     world.register_component<Velocity>();
 
-    Entity entity = world.entity("Entity 0", Position{1.0f, 2.0f}, Velocity{3.0f, 4.0f});
+    ecs::Entity entity = world.entity("Entity 0", Position{1.0f, 2.0f}, Velocity{3.0f, 4.0f});
 
     world.dispatch();
 
     ASSERT(world.entities.size() == 1);
 
-    EntityMeta &meta = world.entities[0];
+    ecs::EntityMeta &meta = world.entities[0];
 
     ASSERT(meta.name == "Entity 0");
     ASSERT(entity.has<Position>());
@@ -47,7 +47,7 @@ TEST(EntityCreationWithComponents, "Entity creation with components")
 
 TEST(FindEntity, "Find entity")
 {
-    World world;
+    ecs::World world;
 
     const int entity_count = 20;
     for (int i = 0; i < entity_count; i++)
@@ -57,8 +57,8 @@ TEST(FindEntity, "Find entity")
 
     world.dispatch();
 
-    Entity found_entity = world.find("Entity 0");
-    Entity not_found_entity = world.find("Entity 100");
+    ecs::Entity found_entity = world.find("Entity 0");
+    ecs::Entity not_found_entity = world.find("Entity 100");
 
     ASSERT(found_entity.id() != INVALID_ENTITY);
     ASSERT(not_found_entity.id() == INVALID_ENTITY);
@@ -66,10 +66,10 @@ TEST(FindEntity, "Find entity")
 
 TEST(EntityDestroy, "Entity destroy")
 {
-    World world;
+    ecs::World world;
 
-    Entity entity0 = world.entity("Entity 0");
-    Entity entity1 = world.entity("Entity 1");
+    ecs::Entity entity0 = world.entity("Entity 0");
+    ecs::Entity entity1 = world.entity("Entity 1");
 
     world.dispatch();
 

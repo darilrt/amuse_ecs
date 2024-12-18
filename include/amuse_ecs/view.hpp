@@ -2,54 +2,58 @@
 
 #include "amuse_ecs/archetype.hpp"
 
-class World;
-
-template <typename... Components>
-class View
+namespace ecs
 {
-public:
-    std::vector<Archetype *> archetypes;
+    class World;
 
-    View(World &world) : _world(world)
+    template <typename... Components>
+    class View
     {
-    }
+    public:
+        std::vector<Archetype *> archetypes;
 
-    inline World &world() { return _world; }
-
-    size_t size() const
-    {
-        size_t size = 0;
-        for (auto archetype : archetypes)
+        View(World &world) : _world(world)
         {
-            size += archetype->entities.size();
         }
-        return size;
-    }
 
-    void each(std::function<void(Entity, Components &...)> &&func) const
-    {
-        for (auto archetype : archetypes)
+        inline World &world() { return _world; }
+
+        size_t size() const
         {
-            for (size_t i = 0; i < archetype->entities.size(); i++)
+            size_t size = 0;
+            for (auto archetype : archetypes)
             {
-                func(
-                    archetype->find(archetype->entities[i]),
-                    *static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
+                size += archetype->entities.size();
+            }
+            return size;
+        }
+
+        void each(std::function<void(Entity, Components &...)> &&func) const
+        {
+            for (auto archetype : archetypes)
+            {
+                for (size_t i = 0; i < archetype->entities.size(); i++)
+                {
+                    func(
+                        archetype->find(archetype->entities[i]),
+                        *static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
+                }
             }
         }
-    }
 
-    void each(std::function<void(Components &...)> &&func) const
-    {
-        for (auto archetype : archetypes)
+        void each(std::function<void(Components &...)> &&func) const
         {
-            for (size_t i = 0; i < archetype->entities.size(); i++)
+            for (auto archetype : archetypes)
             {
-                func(*static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
+                for (size_t i = 0; i < archetype->entities.size(); i++)
+                {
+                    func(*static_cast<Components *>(archetype->component_data[ECS_ID(Components)][i])...);
+                }
             }
         }
-    }
 
-private:
-    World &_world;
-};
+    private:
+        World &_world;
+    };
+
+} // namespace ecs

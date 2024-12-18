@@ -5,62 +5,92 @@
 
 #include "amuse_ecs/ecs.hpp"
 
-struct ArchetypeId
+namespace ecs
 {
-    ArchetypeId() = default;
-
-    ArchetypeId(const std::vector<ComponentId> &ids)
-        : ids(ids)
+    struct ArchetypeId
     {
-    }
+        ArchetypeId() = default;
 
-    std::vector<ComponentId> ids;
+        ArchetypeId(const std::vector<ComponentId> &ids)
+            : ids(ids)
+        {
+        }
 
-    ArchetypeId copy() const;
+        std::vector<ComponentId> ids;
 
-    void add(ComponentId id);
+        ArchetypeId copy() const;
 
-    void remove(ComponentId id);
+        void add(ComponentId id);
 
-    bool contains(ComponentId id) const;
+        void remove(ComponentId id);
 
-    bool contains(const ArchetypeId &other) const;
+        bool contains(ComponentId id) const;
 
-    template <typename... Components>
-    bool contains() const
+        bool contains(const ArchetypeId &other) const;
+
+        template <typename... Components>
+        bool contains() const
+        {
+            return contains(ArchetypeId({ECS_ID(Components)...}));
+        }
+
+        inline ComponentId at(size_t index) const
+        {
+            return ids.at(index);
+        }
+
+        inline size_t size() const
+        {
+            return ids.size();
+        }
+
+        inline static ArchetypeId from_ids(const std::vector<ComponentId> &ids)
+        {
+            return ArchetypeId(ids);
+        }
+
+        template <typename... Components>
+        inline static ArchetypeId from_components()
+        {
+            return ArchetypeId({ECS_ID(Components)...});
+        }
+
+        std::vector<ComponentId>::const_iterator begin() const
+        {
+            return ids.begin();
+        }
+
+        std::vector<ComponentId>::const_iterator end() const
+        {
+            return ids.end();
+        }
+
+        bool operator==(const ArchetypeId &other) const
+        {
+            return ids == other.ids;
+        }
+
+        bool operator!=(const ArchetypeId &other) const
+        {
+            return ids != other.ids;
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const ArchetypeId &id);
+    };
+} // namespace ecs
+
+template <>
+struct std::hash<ecs::ArchetypeId>
+{
+    size_t operator()(const ecs::ArchetypeId &id) const
     {
-        return contains(ArchetypeId({ECS_ID(Components)...}));
-    }
+        size_t hash = 0;
 
-    inline ComponentId at(size_t index) const
-    {
-        return ids.at(index);
-    }
+        for (auto component_id : id.ids)
+        {
+            hash ^= component_id;
+        }
 
-    inline size_t size() const
-    {
-        return ids.size();
+        return hash;
     }
-
-    std::vector<ComponentId>::const_iterator begin() const
-    {
-        return ids.begin();
-    }
-
-    std::vector<ComponentId>::const_iterator end() const
-    {
-        return ids.end();
-    }
-
-    bool operator==(const ArchetypeId &other) const
-    {
-        return ids == other.ids;
-    }
-
-    bool operator!=(const ArchetypeId &other) const
-    {
-        return ids != other.ids;
-    }
-
-    friend std::ostream &operator<<(std::ostream &os, const ArchetypeId &id);
 };

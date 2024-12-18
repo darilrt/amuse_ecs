@@ -2,67 +2,70 @@
 
 #include "amuse_ecs/archetype_id.hpp"
 
-ArchetypeId ArchetypeId::copy() const
+namespace ecs
 {
-    ArchetypeId copy;
-    copy.ids = ids;
-    return copy;
-}
-
-void ArchetypeId::add(ComponentId id)
-{
-    if (std::find(ids.begin(), ids.end(), id) == ids.end())
+    ArchetypeId ArchetypeId::copy() const
     {
-        ids.push_back(id);
+        ArchetypeId copy;
+        copy.ids = ids;
+        return copy;
+    }
+
+    void ArchetypeId::add(ComponentId id)
+    {
+        if (std::find(ids.begin(), ids.end(), id) == ids.end())
+        {
+            ids.push_back(id);
+            std::sort(ids.begin(), ids.end());
+        }
+    }
+
+    void ArchetypeId::remove(ComponentId id)
+    {
+        auto it = std::find(ids.begin(), ids.end(), id);
+
+        if (it != ids.end())
+        {
+            ids.erase(it);
+        }
+
         std::sort(ids.begin(), ids.end());
     }
-}
 
-void ArchetypeId::remove(ComponentId id)
-{
-    auto it = std::find(ids.begin(), ids.end(), id);
-
-    if (it != ids.end())
+    bool ArchetypeId::contains(ComponentId id) const
     {
-        ids.erase(it);
+        return std::find(ids.begin(), ids.end(), id) != ids.end();
     }
 
-    std::sort(ids.begin(), ids.end());
-}
-
-bool ArchetypeId::contains(ComponentId id) const
-{
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
-}
-
-bool ArchetypeId::contains(const ArchetypeId &other) const
-{
-    for (auto id : other.ids)
+    bool ArchetypeId::contains(const ArchetypeId &other) const
     {
-        if (!contains(id))
+        for (auto id : other.ids)
         {
-            return false;
+            if (!contains(id))
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
-    return true;
-}
-
-std::ostream &operator<<(std::ostream &os, const ArchetypeId &id)
-{
-    os << "ArchetypeId[";
-
-    for (size_t i = 0; i < id.ids.size(); i++)
+    std::ostream &operator<<(std::ostream &os, const ArchetypeId &id)
     {
-        os << id.ids[i];
+        os << "ArchetypeId[";
 
-        if (i < id.ids.size() - 1)
+        for (size_t i = 0; i < id.ids.size(); i++)
         {
-            os << ", ";
+            os << id.ids[i];
+
+            if (i < id.ids.size() - 1)
+            {
+                os << ", ";
+            }
         }
+
+        os << "]";
+
+        return os;
     }
-
-    os << "]";
-
-    return os;
-}
+} // namespace ecs

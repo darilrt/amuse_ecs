@@ -9,43 +9,46 @@
 #include "amuse_ecs/ecs.hpp"
 #include "amuse_ecs/archetype_id.hpp"
 
-class World;
-class Entity;
-
-class Archetype
+namespace ecs
 {
-public:
-    World &world;
-    ArchetypeId id;
+    class World;
+    class Entity;
 
-    std::vector<EntityId> entities;
+    class Archetype
+    {
+    public:
+        World &world;
+        ArchetypeId id;
 
-    // Map of component ids to component data
-    // Memory layout
-    //  CompId | Entity 0 | Entity 1 | Entity 2 | ... |
-    //       0 | Comp*    | Comp*    | Comp*    | ... |
-    //       1 | Comp*    | Comp*    | Comp*    | ... |
-    //       2 | Comp*    | Comp*    | Comp*    | ... |
-    std::vector<std::vector<void *>> component_data;
+        std::vector<EntityId> entities;
 
-    Archetype(World &world, const ArchetypeId &id);
+        // Map of component ids to component data
+        // Memory layout
+        //  CompId | Entity 0 | Entity 1 | Entity 2 | ... |
+        //       0 | Comp*    | Comp*    | Comp*    | ... |
+        //       1 | Comp*    | Comp*    | Comp*    | ... |
+        //       2 | Comp*    | Comp*    | Comp*    | ... |
+        std::vector<std::vector<void *>> component_data;
 
-    void add_entity(EntityId entity_id);
+        Archetype(World &world, const ArchetypeId &id);
 
-    // Remove entity from archetype but not delete components from memory
-    // this need to be handled externally
-    void remove_entity(EntityId entity_id);
+        void add_entity(EntityId entity_id);
 
-    size_t get_entity_index(EntityId entity_id);
+        // Remove entity from archetype but not delete components from memory
+        // this need to be handled externally
+        void remove_entity(EntityId entity_id);
 
-    void set_component(EntityId entity_id, ComponentId id, void *component);
+        size_t get_entity_index(EntityId entity_id);
 
-    void *get_component(EntityId entity_id, ComponentId id);
+        void set_component(EntityId entity_id, ComponentId id, void *component);
 
-    void move_entity(Archetype &new_archetype, EntityId entity_id);
+        void *get_component(EntityId entity_id, ComponentId id);
 
-    Entity find(EntityId entity_id);
+        void move_entity(Archetype &new_archetype, EntityId entity_id);
 
-private:
-    friend std::ostream &operator<<(std::ostream &os, const Archetype &archetype);
-};
+        Entity find(EntityId entity_id);
+
+    private:
+        friend std::ostream &operator<<(std::ostream &os, const Archetype &archetype);
+    };
+} // namespace ecs
