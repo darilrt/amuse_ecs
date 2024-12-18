@@ -3,6 +3,7 @@
 #include "components.hpp"
 #include "amuse_ecs/entity.hpp"
 #include "amuse_ecs/world.hpp"
+#include "amuse_ecs/archetype_id.hpp"
 
 TEST(ComponentRegistration, "Component registration")
 {
@@ -103,4 +104,115 @@ TEST(ComponentRemoval, "Component removal")
     world.dispatch();
 
     ASSERT(!entity.has<Velocity>());
+}
+
+TEST(ComponentEventSet, "Testing on set event for components")
+{
+    ecs::World world;
+    world.register_component<Position>();
+    world.register_component<Velocity>();
+
+    bool set_p_called = false;
+    bool set_v_called = false;
+    bool set_pv_called = false;
+
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Position>(),
+        [&set_p_called]()
+        {
+            set_p_called = true;
+        });
+
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Velocity>(),
+        [&set_v_called]()
+        {
+            set_v_called = true;
+        });
+
+    world.on<ecs::Set>(
+        ecs::ArchetypeId::from_components<Position, Velocity>(),
+        [&set_pv_called]()
+        {
+            set_pv_called = true;
+        });
+
+    world.entity()
+        .add<Position>({1.0f, 2.0f})
+        .add<Velocity>({3.0f, 4.0f});
+
+    world.dispatch();
+
+    ASSERT(set_p_called);
+    ASSERT(set_v_called);
+    ASSERT(set_pv_called);
+}
+
+TEST(ComponentEventUnset, "Testing on unset event for components")
+{
+    ecs::World world;
+    world.register_component<Position>();
+    world.register_component<Velocity>();
+
+    bool unset_p_called = false;
+    bool unset_v_called = false;
+    bool unset_pv_called = false;
+
+    world.on<ecs::Unset>(
+        ecs::ArchetypeId::from_components<Position>(),
+        [&unset_p_called]()
+        {
+            unset_p_called = true;
+        });
+
+    world.on<ecs::Unset>(
+        ecs::ArchetypeId::from_components<Velocity>(),
+        [&unset_v_called]()
+        {
+            unset_v_called = true;
+        });
+
+    world.on<ecs::Unset>(
+        ecs::ArchetypeId::from_components<Position, Velocity>(),
+        [&unset_pv_called]()
+        {
+            unset_pv_called = true;
+        });
+
+    ecs::Entity entity = world.entity()
+                             .add<Position>({1.0f, 2.0f})
+                             .add<Velocity>({3.0f, 4.0f});
+
+    world.dispatch();
+
+    entity.remove<Position>();
+
+    world.dispatch();
+
+    ASSERT(unset_p_called);
+    ASSERT(unset_pv_called);
+
+    entity.remove<Velocity>();
+
+    world.dispatch();
+
+    ASSERT(unset_v_called);
+
+    auto entity1 = world.entity()
+                       .add<Position>({1.0f, 2.0f})
+                       .add<Velocity>({3.0f, 4.0f});
+
+    world.dispatch();
+
+    unset_p_called = false;
+    unset_v_called = false;
+    unset_pv_called = false;
+
+    entity1.destroy();
+
+    world.dispatch();
+
+    ASSERT(unset_p_called);
+    ASSERT(unset_v_called);
+    ASSERT(unset_pv_called);
 }

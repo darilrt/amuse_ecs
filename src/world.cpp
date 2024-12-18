@@ -253,19 +253,24 @@ namespace ecs
                 {
                     break;
                 }
+                EntityMeta &meta = entities[action.meta.id];
 
                 // Call unset event for all components
-                ArchetypeId id = action.meta.archetype->id.copy();
+                ArchetypeId id = meta.archetype->id.copy();
 
-                for (const ComponentId &component_id : action.meta.archetype->id)
+                for (const ComponentId &component_id : meta.archetype->id)
                 {
-                    emit<Unset>(id);
+                    emit<Unset>(ArchetypeId({component_id}));
+
+                    if (id.ids.size() != 1)
+                    {
+                        emit<Unset>(id);
+                    }
+
                     id.remove(component_id);
                 }
 
                 free_entities.push_back(action.meta.id);
-
-                EntityMeta &meta = entities[action.meta.id];
 
                 auto index = meta.archetype->get_entity_index(action.meta.id);
 
@@ -352,7 +357,12 @@ namespace ecs
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
                     // Call unset event for all components
-                    emit<Unset>(new_archetype_id);
+                    emit<Unset>(ArchetypeId({component.first}));
+
+                    if (new_archetype_id.ids.size() != 1)
+                    {
+                        emit<Unset>(new_archetype_id);
+                    }
 
                     new_archetype_id.remove(component.first);
                 }
