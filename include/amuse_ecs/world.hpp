@@ -18,7 +18,11 @@
 
 namespace ecs
 {
+    // Set component event
     EVENT(Set);
+
+    // Unset component event
+    EVENT(Unset);
 
     class World
     {

@@ -254,6 +254,15 @@ namespace ecs
                     break;
                 }
 
+                // Call unset event for all components
+                ArchetypeId id = action.meta.archetype->id.copy();
+
+                for (const ComponentId &component_id : action.meta.archetype->id)
+                {
+                    emit<Unset>(id);
+                    id.remove(component_id);
+                }
+
                 free_entities.push_back(action.meta.id);
 
                 EntityMeta &meta = entities[action.meta.id];
@@ -342,6 +351,9 @@ namespace ecs
 
                 for (const std::pair<ComponentId, void *> &component : action.components)
                 {
+                    // Call unset event for all components
+                    emit<Unset>(new_archetype_id);
+
                     new_archetype_id.remove(component.first);
                 }
 

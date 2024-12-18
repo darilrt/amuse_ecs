@@ -4,13 +4,25 @@
 #include <typeindex>
 #include <functional>
 
-#define EVENT(name) \
-    struct name     \
-    {               \
+#define EVENT(name)          \
+    struct name : ecs::Event \
+    {                        \
     };
 
 namespace ecs
 {
+    struct Event
+    {
+    };
+
+    // Check if a type is an event
+    template <typename T>
+    inline constexpr bool is_event = std::is_base_of_v<Event, T>;
+
+    // Check if a list of types are all events
+    template <typename... Ts>
+    inline constexpr bool are_events = (is_event<Ts> && ...);
+
     class EventHandler
     {
         std::unordered_map<std::type_index, std::vector<std::function<void(void)>>> _handlers;
