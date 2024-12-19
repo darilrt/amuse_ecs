@@ -16,11 +16,11 @@ namespace ecs
 
         inline EntityId id() const { return _id; }
 
-        inline World &world() { return _world; }
+        inline World &world() { return *_world; }
 
         inline EntityMeta &meta() { return *_meta; }
 
-        inline const World &world() const { return _world; }
+        inline const World &world() const { return *_world; }
 
         void destroy();
 
@@ -54,17 +54,11 @@ namespace ecs
             remove(ECS_ID(T));
         }
 
-        constexpr Entity &operator=(const ecs::Entity &e)
-        {
-            _id = e._id;
-            _world = e._world;
-            _meta = e._meta;
-            return *this;
-        }
+        Entity &operator=(const ecs::Entity &e);
 
     private:
         EntityId _id;
-        World &_world;
+        World *_world;
         EntityMeta *_meta;
     };
 } // namespace ecs

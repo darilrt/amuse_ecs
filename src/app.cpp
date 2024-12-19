@@ -2,7 +2,7 @@
 
 namespace ecs
 {
-    App::App()
+    App::App() : _entity(_world, 0, nullptr)
     {
         _entity = _world.entity("ecs::App::entity");
         _world.dispatch();
