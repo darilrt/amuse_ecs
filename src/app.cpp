@@ -2,6 +2,12 @@
 
 namespace ecs
 {
+    App::App()
+    {
+        _entity = _world.entity("ecs::App::entity");
+        _world.dispatch();
+        _entity = _world.find(_entity.id());
+    }
 
     void App::run()
     {

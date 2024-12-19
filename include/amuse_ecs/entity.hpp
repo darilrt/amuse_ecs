@@ -54,6 +54,14 @@ namespace ecs
             remove(ECS_ID(T));
         }
 
+        constexpr Entity &operator=(const ecs::Entity &e)
+        {
+            _id = e._id;
+            _world = e._world;
+            _meta = e._meta;
+            return *this;
+        }
+
     private:
         EntityId _id;
         World &_world;

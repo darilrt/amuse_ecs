@@ -29,8 +29,23 @@ namespace ecs
         World _world;
         EventHandler _event_handler;
         bool _running = false;
+        Entity _entity;
 
     public:
+        App();
+
+        template <typename Component>
+        inline Entity add(const Component &component)
+        {
+            return _entity.add(component);
+        }
+
+        template <typename Component>
+        inline Component *get() const
+        {
+            return _entity.get<Component>();
+        }
+
         template <typename Module>
         App &use()
         {
