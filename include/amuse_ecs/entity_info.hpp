@@ -8,8 +8,8 @@ namespace ecs
 {
     struct EntityMeta
     {
-        EntityId id;
-        Archetype *archetype;
-        std::string name;
+        EntityId id = 0;
+        Archetype *archetype = nullptr;
+        std::string name = "";
     };
 } // namespace ecs

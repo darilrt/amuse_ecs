@@ -21,6 +21,10 @@ namespace ecs
 
     void *Entity::get(ComponentId component_id) const
     {
+        if (_meta == nullptr)
+        {
+            return _world->get_component(_id, component_id);
+        }
         return _meta->archetype == nullptr ? _world->get_component(_id, component_id) : _meta->archetype->get_component(_id, component_id);
     }
 

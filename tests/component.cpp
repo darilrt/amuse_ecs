@@ -112,29 +112,29 @@ TEST(ComponentEventSet, "Testing on set event for components")
     world.register_component<Position>();
     world.register_component<Velocity>();
 
-    bool set_p_called = false;
-    bool set_v_called = false;
-    bool set_pv_called = false;
+    int set_p_called = 0;
+    int set_v_called = 0;
+    int set_pv_called = 0;
 
     world.on<ecs::Set>(
         ecs::ArchetypeId::from_components<Position>(),
         [&set_p_called]()
         {
-            set_p_called = true;
+            set_p_called++;
         });
 
     world.on<ecs::Set>(
         ecs::ArchetypeId::from_components<Velocity>(),
         [&set_v_called]()
         {
-            set_v_called = true;
+            set_v_called++;
         });
 
     world.on<ecs::Set>(
         ecs::ArchetypeId::from_components<Position, Velocity>(),
         [&set_pv_called]()
         {
-            set_pv_called = true;
+            set_pv_called++;
         });
 
     world.entity()
@@ -143,9 +143,9 @@ TEST(ComponentEventSet, "Testing on set event for components")
 
     world.dispatch();
 
-    ASSERT(set_p_called);
-    ASSERT(set_v_called);
-    ASSERT(set_pv_called);
+    ASSERT(set_p_called == 1);
+    ASSERT(set_v_called == 1);
+    ASSERT(set_pv_called == 1);
 }
 
 TEST(ComponentEventUnset, "Testing on unset event for components")

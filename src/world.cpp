@@ -45,7 +45,7 @@ namespace ecs
         });
 
         // Return entity
-        return Entity(*this, id, &actions.back().meta);
+        return Entity(*this, id, nullptr);
     }
 
     Entity World::entity_with_components(const std::string &name, const std::vector<std::pair<ComponentId, void *>> &components)
@@ -88,7 +88,7 @@ namespace ecs
         });
 
         // Return entity
-        return Entity(*this, id, &actions.back().meta);
+        return Entity(*this, id, nullptr);
     }
 
     Entity World::find(const std::string &name)
@@ -238,7 +238,11 @@ namespace ecs
                     emit<Set>(id);
 
                     archetype_id.add(component.first);
-                    emit<Set>(archetype_id);
+
+                    if (archetype_id.ids.size() != 1)
+                    {
+                        emit<Set>(archetype_id);
+                    }
                 }
 
                 break;
