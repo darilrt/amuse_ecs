@@ -337,7 +337,11 @@ namespace ecs
                     emit<Set>(id);
 
                     archetype_id.add(component.first);
-                    emit<Set>(archetype_id);
+
+                    if (archetype_id.ids.size() != 1)
+                    {
+                        emit<Set>(archetype_id);
+                    }
                 }
                 break;
             }

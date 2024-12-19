@@ -141,11 +141,21 @@ TEST(ComponentEventSet, "Testing on set event for components")
         .add<Position>({1.0f, 2.0f})
         .add<Velocity>({3.0f, 4.0f});
 
+    auto ent = world.entity();
     world.dispatch();
 
     ASSERT(set_p_called == 1);
     ASSERT(set_v_called == 1);
     ASSERT(set_pv_called == 1);
+
+    ent.add<Position>({1.0f, 2.0f})
+        .add<Velocity>({3.0f, 4.0f});
+
+    world.dispatch();
+
+    ASSERT(set_p_called == 2);
+    ASSERT(set_v_called == 2);
+    ASSERT(set_pv_called == 2);
 }
 
 TEST(ComponentEventUnset, "Testing on unset event for components")
